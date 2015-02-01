@@ -185,7 +185,7 @@ function sendEmail ($messageid,$email,$hash,$htmlpref = 0,$rssitems = array(),$f
   $url = getConfig("forwardurl");
 
   # make sure there are no newlines, otherwise they get turned into <br/>s
-  $html["forwardform"] = sprintf('<form method="get" action="%s" name="forwardform" class="forwardform"><input type="hidden" name="uid" value="%s" /><input type="hidden" name="mid" value="%d" /><input type="hidden" name="p" value="forward" /><input type=text name="email" value="" class="forwardinput" /><input name="Send" type="submit" value="%s" class="forwardsubmit"/></form>',$url,$hash,$messageid,$GLOBALS['strForward']);
+  $html["forwardform"] = '';#sprintf('<form method="get" action="%s" name="forwardform" class="forwardform"><input type="hidden" name="uid" value="%s" /><input type="hidden" name="mid" value="%d" /><input type="hidden" name="p" value="forward" /><input type=text name="email" value="" class="forwardinput" /><input name="Send" type="submit" value="%s" class="forwardsubmit"/></form>',$url,$hash,$messageid,$GLOBALS['strForward']);
   $text["signature"] = "\n\n-- powered by phpList, www.phplist.com --\n\n";
   $url = getConfig("preferencesurl");$sep = strpos($url,'?') === false ? '?':'&';
   $html["preferences"] = sprintf('<a href="%s%suid=%s">%s</a>',$url,htmlspecialchars($sep),$hash,$strThisLink);
@@ -612,7 +612,7 @@ function sendEmail ($messageid,$email,$hash,$htmlpref = 0,$rssitems = array(),$f
       $link = str_replace('"','',$link);  
       ## http://www.google.com/support/analytics/bin/answer.py?hl=en&answer=55578
 
-      $trackingcode = 'utm_source=emailcampaign'.$messageid.'&utm_medium=phpList&utm_content=HTML&utm_campaign='.urlencode($cached[$messageid]["subject"]);
+      $trackingcode = 'utm_source=phplist'.$messageid.'&utm_medium=email&utm_content=HTML&utm_campaign='.urlencode($cached[$messageid]["subject"]);
       ## take off existing tracking code, if found
       if (strpos($link,'utm_medium') !== false) {
         $link = preg_replace('/utm_(\w+)\=[^&]+&/U','',$link);
@@ -649,7 +649,8 @@ function sendEmail ($messageid,$email,$hash,$htmlpref = 0,$rssitems = array(),$f
   
       if (preg_match('/^http|ftp/',$link) && (stripos($link, 'www.phplist.com') !== 0)  ) {# && !strpos($link,$clicktrack_root)) {
         $url = cleanUrl($link,array('PHPSESSID','uid'));
-        $trackingcode = 'utm_source=emailcampaign'.$messageid.'&utm_medium=phpList&utm_content=text&utm_campaign='.urlencode($cached[$messageid]["subject"]);
+        //@alpha1: maybe source should be message id?
+        $trackingcode = 'utm_source=phplist'.$messageid.'&utm_medium=email&utm_content=text&utm_campaign='.urlencode($cached[$messageid]["subject"]);
         ## take off existing tracking code, if found
         if (strpos($link,'utm_medium') !== false) {
           $link = preg_replace('/utm_(\w+)\=[^&]+/','',$link);
