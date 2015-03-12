@@ -1,8 +1,6 @@
 <?php
 require_once dirname(__FILE__).'/accesscheck.php';
 
-# $Id: editattributes.php,v 1.6 2008-01-16 05:41:28 brian_252 Exp $
-
 $id = !empty($_GET['id']) ? sprintf('%d',$_GET['id']) : 0;
 ob_end_flush();
 
@@ -44,7 +42,7 @@ switch ($data['type']) {
 
   $button = new ConfirmButton(
      s('Are you sure you want to delete all values?'),
-     PageURL2("editattributes",s('delete all'),"id=$id&amp;deleteall=yes"),
+     PageURL2("editattributes&id=$id&deleteall=yes",s('delete all')),
      s('Delete all'));
    
   print $button->show();
@@ -144,8 +142,10 @@ function deleteItem($table,$attributeid,$delete) {
 }
 
 if (isset($_GET["delete"])) {
+  if (!verifyToken()) {  print Error(s('No Access'));  return; }
   deleteItem($table,$id,sprintf('%d',$_GET["delete"]));
 } elseif(isset($_GET["deleteall"])) {
+  if (!verifyToken()) {  print Error(s('No Access'));  return; }
   $count = 0;
   $errcount = 0;
   $res = Sql_Query("select id from $table");
@@ -174,12 +174,12 @@ if (isset($_GET["action"]) && $_GET["action"] == "new") {
 <?php
 }
 
-$rs = Sql_query("select * from $table order by listorder, name");
-$num = Sql_Num_Rows($rs);
+$req = Sql_query("SELECT * FROM $table order by listorder,name");
+$num = Sql_Affected_Rows();
 if ($num < 100 && $num > 25)
   printf('<input class="submit" type="submit" name="action" value="%s" /><br /><br />',$GLOBALS["I18N"]->get("Change order"));
 
-while ($row = Sql_Fetch_array($rs)) {
+while ($row = Sql_Fetch_array($req)) {
   printf( '<div class="row-value"><span class="delete"><a href="javascript:deleteRec(\'%s\');">'.$GLOBALS['I18N']->get('delete').'</a></span>',PageURL2("editattributes","","id=$id&amp;delete=".$row["id"]));
   if ($num < 100)
     printf(' <input type="text" name="listorder[%d]" value="%s" size="5" class="listorder" />',$row["id"],$row["listorder"]);
